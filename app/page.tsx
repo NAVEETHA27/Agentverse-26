@@ -266,7 +266,7 @@ export default function LandingPage() {
                 <span className="text-[#735362] font-normal">Not Just Another Chatbot</span>
               </h2>
               <p className="text-sm text-[#735362] mt-4 leading-relaxed">
-                Generic chatbots simply reply to text prompts with ungrounded answers. In contrast, AlumniVerse uses an autonomous agentic loop wrapped with human approval controls:
+                Generic chatbots simply reply to text prompts with ungrounded answers. In contrast, AlumNet uses an autonomous agentic loop wrapped with human approval controls:
               </p>
 
               <div className="mt-6 space-y-3.5">
@@ -330,7 +330,7 @@ export default function LandingPage() {
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm">
                 <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold mb-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  AlumniVerse Agentic System (What We Built)
+                  AlumNet Agentic System (What We Built)
                 </div>
                 <p className="text-xs text-[#1E1218] font-mono leading-relaxed">
                   Goal → Analyze Profile → Detect Gaps → Retrieve Candidates → Deterministic Scoring → Explain Match → Draft Action → Human Approval → Execute Connection → Extract Conversation Advice → Update Roadmap.
@@ -349,7 +349,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <Sparkles className="h-5 w-5 text-[#7A1443]" />
-            <span className="text-sm font-bold text-[#1E1218]">AlumniVerse</span>
+            <span className="text-sm font-bold text-[#1E1218]">AlumNet</span>
             <span className="text-xs text-[#735362]">| PS6 AI-Based Alumni Career & Networking Platform</span>
           </div>
 

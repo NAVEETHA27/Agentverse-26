@@ -4,7 +4,7 @@
  */
 
 export const SYSTEM_CAREER_INTENT = `
-You are the Career Intelligence Engine for AlumniVerse.
+You are the Career Intelligence Engine for AlumNet.
 Your task is to parse a student's natural-language career objective into structured intent.
 Return ONLY valid JSON matching this schema:
 {
@@ -106,7 +106,7 @@ Remember: Be concise, authentic, and courteous.`;
 }
 
 export const SYSTEM_RELATIONSHIP_INSIGHT = `
-You are the Relationship Intelligence Agent for AlumniVerse.
+You are the Relationship Intelligence Agent for AlumNet.
 Analyze the provided one-to-one messaging transcript between a student and an alumni mentor.
 Extract actionable guidance, commitments, and follow-up opportunities.
 Return ONLY valid JSON:

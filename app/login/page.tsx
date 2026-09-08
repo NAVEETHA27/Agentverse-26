@@ -52,11 +52,43 @@ export default function LoginPage() {
       {/* Top Bar with brand and back link */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6 relative z-10">
         <Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5A0C32] to-[#7A1443] flex items-center justify-center text-white font-bold shadow-lg shadow-[#5A0C32]/25 group-hover:scale-105 transition-transform">
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 group-hover:scale-105 transition-transform">
+            {/* AlumNet inline SVG logo */}
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="AlumNet logo">
+              <defs>
+                <linearGradient id="login-outer" x1="4" y1="2" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#FA1561" />
+                  <stop offset="35%" stopColor="#D81B60" />
+                  <stop offset="70%" stopColor="#880E4F" />
+                  <stop offset="100%" stopColor="#4A0023" />
+                </linearGradient>
+                <linearGradient id="login-top-left" x1="6" y1="6" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#FF2A75" stopOpacity="0.9" />
+                  <stop offset="100%" stopColor="#C2185B" stopOpacity="0.7" />
+                </linearGradient>
+                <linearGradient id="login-top-right" x1="34" y1="6" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#FA1561" stopOpacity="0.95" />
+                  <stop offset="100%" stopColor="#AD1457" stopOpacity="0.8" />
+                </linearGradient>
+                <linearGradient id="login-cube-left" x1="12" y1="15.3" x2="20" y2="29.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#FFE5EE" />
+                  <stop offset="100%" stopColor="#F8BBD0" />
+                </linearGradient>
+                <linearGradient id="login-cube-right" x1="28" y1="15.3" x2="20" y2="29.5" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stopColor="#F48FB1" />
+                  <stop offset="100%" stopColor="#EC407A" />
+                </linearGradient>
+              </defs>
+              <path d="M17.5 2.87C19.05 1.98 20.95 1.98 22.5 2.87L34.1 9.57C35.65 10.46 36.6 12.1 36.6 13.89V26.11C36.6 27.9 35.65 29.54 34.1 30.43L22.5 37.13C20.95 38.02 19.05 38.02 17.5 37.13L5.9 30.43C4.35 29.54 3.4 27.9 3.4 26.11V13.89C3.4 12.1 4.35 10.46 5.9 9.57L17.5 2.87Z" fill="url(#login-outer)" />
+              <path d="M20 2.5C26 2.5 35 8 35 14C35 19 28 20 20 20C12 20 5 19 5 14C5 8 14 2.5 20 2.5Z" fill="url(#login-top-right)" opacity="0.6" />
+              <path d="M5.5 11C12 11 20 20 20 27.5C20 33 13 36.5 7.5 31C3.5 27 3.5 16 5.5 11Z" fill="url(#login-top-left)" opacity="0.5" />
+              <path d="M12 15.3L20 19.9V29.5L12 24.9V15.3Z" fill="url(#login-cube-left)" />
+              <path d="M20 19.9L28 15.3V24.9L20 29.5V19.9Z" fill="url(#login-cube-right)" />
+              <path d="M20 10.7L28 15.3L20 19.9L12 15.3L20 10.7Z" fill="#FFFFFF" />
+            </svg>
           </div>
           <span className="text-2xl font-bold text-[#1E1218] tracking-tight">
-            Alumni<span className="text-[#7A1443]">Verse</span>
+            Alum<span className="text-[#FA1561]">Net</span>
           </span>
         </Link>
         <h2 className="text-2xl font-bold tracking-tight text-[#1E1218]">
@@ -223,7 +255,7 @@ export default function LoginPage() {
 
           <div className="text-center">
             <Link href="/" className="text-xs text-[#735362] hover:text-[#5A0C32] font-medium transition">
-              ← Return to AlumniVerse home page
+              ← Return to AlumNet home page
             </Link>
           </div>
         </Card>
