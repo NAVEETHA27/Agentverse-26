@@ -4,23 +4,24 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Target, Users, Briefcase, UserCheck, Sparkles,
-  Settings, BrainCircuit, Calendar, MessageSquare, Bell,
-  BookOpen, LogOut, Star, Home
+  Home, Target, Users, MessageSquare, Briefcase, Calendar,
+  UserCheck, Bell, Settings, GraduationCap, Sparkles, ArrowRight,
+  LogOut, Compass, Trophy
 } from "lucide-react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "My Profile", href: "/profile", icon: UserCheck },
-  { name: "Career Roadmap", href: "/career", icon: Target },
-  { name: "Alumni Roadmap", href: "/network", icon: BookOpen },
-  { name: "Mentorship", href: "/network", icon: Sparkles },
-  { name: "Jobs & Referrals", href: "/opportunities", icon: Briefcase },
-  { name: "AI Assistant", href: "/career", icon: BrainCircuit },
-  { name: "Messages", href: "/chat", icon: MessageSquare, badge: 3 },
-  { name: "Events", href: "/feed", icon: Calendar },
+  { name: "Home", href: "/dashboard", icon: Home },
+  { name: "Career", href: "/career", icon: Target },
+  { name: "Network", href: "/network", icon: Users },
+  { name: "Mentors", href: "/network", icon: Sparkles },
+  { name: "Mentorship", href: "/network", icon: Trophy },
+  { name: "Groups", href: "/feed", icon: Users },
+  { name: "Chat", href: "/chat", icon: MessageSquare, badge: 3 },
+  { name: "Opportunities", href: "/opportunities", icon: Briefcase },
+  { name: "Feed", href: "/feed", icon: Calendar },
+  { name: "Profile", href: "/profile", icon: UserCheck },
   { name: "Notifications", href: "/notifications", icon: Bell, badge: 3 },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
@@ -28,7 +29,7 @@ const sidebarLinks = [
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Prevent browser window/document body from scrolling while inside the authenticated platform shell
+  // Prevent main browser document body from scrolling; main container handles scrolling
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -38,11 +39,14 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
   }, []);
 
   const isActive = (href: string, name: string) => {
+    if (pathname === "/dashboard" || pathname === "/") {
+      return name === "Home";
+    }
     if (pathname === "/career") {
-      return name === "Career Roadmap";
+      return name === "Career";
     }
     if (pathname === "/network") {
-      return name === "Alumni Roadmap" || name === "Mentorship";
+      return name === "Network";
     }
     return pathname === href;
   };
@@ -51,27 +55,38 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
     <div
       className="platform-shell relative w-full overflow-hidden bg-[#FAF7F8] text-[#1E1218]"
       style={{
-        height: "100dvh",
-        minHeight: "100dvh",
-        maxHeight: "100dvh",
+        height: "100vh",
+        minHeight: "100vh",
+        maxHeight: "100vh",
       }}
     >
-      {/* ── 1. Fixed Top Navbar ── */}
-      <Navbar />
-
-      {/* ── 2. Fixed Desktop Sidebar (stays pinned at left, never moves on main scroll) ── */}
+      {/* ── 1. Fixed Desktop Left Sidebar (Full Height 0 to 100vh) ── */}
       <aside
         id="platform-sidebar"
-        className="hidden lg:flex flex-col fixed left-0 bottom-0 z-40 overflow-y-auto overflow-x-hidden overscroll-contain"
+        className="hidden lg:flex flex-col fixed left-0 top-0 bottom-0 z-40 overflow-y-auto overflow-x-hidden overscroll-contain"
         style={{
-          top: "var(--navbar-height, 56px)",
-          width: "var(--sidebar-width, 220px)",
-          background: "linear-gradient(180deg, #1a0410 0%, #220614 60%, #2a0818 100%)",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
+          width: "var(--sidebar-width, 250px)",
+          background: "linear-gradient(180deg, #1A0410 0%, #2A0818 55%, #350A1F 100%)",
+          borderRight: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {/* Navigation links */}
-        <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+        {/* Brand Header */}
+        <div className="p-5 pb-4 flex items-center gap-3 border-b border-white/10 shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7A1443] to-[#C0336B] flex items-center justify-center shadow-lg ring-1 ring-white/20">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <span className="text-[16px] font-extrabold text-white tracking-tight leading-tight block">
+              AgentVerse
+            </span>
+            <span className="text-[10px] text-rose-300/80 font-medium block">
+              AI Career Navigation
+            </span>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {sidebarLinks.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href, item.name);
@@ -80,22 +95,32 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group",
+                  "flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-150 group",
                   active
-                    ? "text-white"
-                    : "text-rose-200/60 hover:text-white hover:bg-white/10"
+                    ? "text-white font-semibold"
+                    : "text-rose-200/70 hover:text-white hover:bg-white/10"
                 )}
-                style={active ? {
-                  background: "linear-gradient(110deg, #4a0c28 0%, #7a1443 100%)",
-                  boxShadow: "0 2px 8px rgba(120,20,60,0.4)",
-                } : {}}
+                style={
+                  active
+                    ? {
+                        background: "linear-gradient(110deg, #5A0C32 0%, #7A1443 100%)",
+                        boxShadow: "0 2px 10px rgba(122, 20, 67, 0.4)",
+                        border: "1px solid rgba(255, 255, 255, 0.15)",
+                      }
+                    : {}
+                }
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={cn("w-4 h-4 shrink-0", active ? "text-white" : "text-rose-300/50 group-hover:text-rose-200")} />
+                  <Icon
+                    className={cn(
+                      "w-4 h-4 shrink-0 transition-colors",
+                      active ? "text-white" : "text-rose-300/60 group-hover:text-rose-200"
+                    )}
+                  />
                   <span className="truncate">{item.name}</span>
                 </div>
                 {item.badge && (
-                  <span className="w-5 h-5 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                  <span className="w-4 h-4 rounded-full bg-[#C0336B] text-white text-[9px] font-bold flex items-center justify-center shrink-0">
                     {item.badge}
                   </span>
                 )}
@@ -104,59 +129,61 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
           })}
         </nav>
 
-        {/* Divider */}
-        <div className="mx-3 border-t border-white/10" />
-
-        {/* Promotional / Network Card matching screenshot */}
+        {/* Bottom Promotional AI Card matching Screenshot */}
         <div
           className="m-3 relative overflow-hidden rounded-2xl p-4 text-white shrink-0"
           style={{
-            background: "linear-gradient(145deg, #1e0512 0%, #3d0822 40%, #6b1038 70%, #8a1545 100%)",
-            boxShadow: "0 4px 20px rgba(100,10,40,0.5)",
+            background: "linear-gradient(145deg, #1E0412 0%, #3D0822 40%, #5A0C32 75%, #7A1443 100%)",
+            boxShadow: "0 4px 18px rgba(90, 12, 50, 0.5)",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
           }}
         >
-          {/* Decorative glowing arcs matching screenshot */}
+          {/* Glowing Vector Lines */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 180 130" fill="none" preserveAspectRatio="xMidYMid slice">
-            <ellipse cx="160" cy="15" rx="100" ry="55" fill="none" stroke="#e01858" strokeWidth="1" opacity="0.4" />
-            <ellipse cx="170" cy="25" rx="80" ry="42" fill="none" stroke="#c8104a" strokeWidth="0.7" opacity="0.3" />
-            <circle cx="160" cy="110" r="28" fill="rgba(180,20,60,0.1)" />
+            <ellipse cx="150" cy="20" rx="90" ry="50" fill="none" stroke="#E01858" strokeWidth="1" opacity="0.35" />
+            <ellipse cx="160" cy="30" rx="70" ry="38" fill="none" stroke="#C8104A" strokeWidth="0.8" opacity="0.25" />
+            <circle cx="140" cy="100" r="24" fill="rgba(220, 30, 80, 0.15)" />
           </svg>
-          <div
-            className="absolute top-0 right-0 w-20 h-20 rounded-full pointer-events-none"
-            style={{ background: "radial-gradient(circle, rgba(220,30,80,0.3) 0%, transparent 70%)" }}
-          />
           <div className="relative z-10 space-y-2">
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-rose-300 fill-rose-300" />
-              <span className="text-[11px] font-bold text-rose-300">Important</span>
+              <span className="text-[11px] font-bold text-white tracking-wide">AgentVerse AI</span>
             </div>
-            <p className="text-[12px] font-bold leading-snug">Your future is a network away.</p>
-            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(255,190,210,0.85)" }}>
-              Connect with the right people, Build your career with AI.
+            <p className="text-[11px] leading-snug text-rose-100/90 font-medium">
+              Your AI-powered career navigation companion.
             </p>
+            <Link
+              href="/career"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-white/15 hover:bg-white/25 border border-white/20 text-white transition mt-1"
+            >
+              Explore AI <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
         </div>
 
         {/* Logout */}
         <button
           type="button"
-          className="flex items-center gap-3 px-5 py-3.5 text-rose-300/60 hover:text-rose-200 hover:bg-white/5 transition text-[13px] font-medium border-t border-white/10 shrink-0 text-left"
+          className="flex items-center gap-3 px-5 py-3 text-rose-300/60 hover:text-white hover:bg-white/5 transition text-[12px] font-medium border-t border-white/10 shrink-0 text-left"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-3.5 h-3.5" />
           Log Out
         </button>
       </aside>
 
-      {/* ── 3. Main Content Area (The Single Primary Scroll Container) ── */}
+      {/* ── 2. Fixed Top Navbar Header ── */}
+      <Navbar />
+
+      {/* ── 3. Main Content Area (Independent Scroll Container) ── */}
       <main
         id="main-scroll-area"
-        className="min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain ml-0 lg:ml-[var(--sidebar-width,220px)]"
+        className="min-w-0 overflow-y-auto overflow-x-hidden overscroll-contain ml-0 lg:ml-[var(--sidebar-width,250px)]"
         style={{
-          marginTop: "var(--navbar-height, 56px)",
-          height: "calc(100dvh - var(--navbar-height, 56px))",
+          marginTop: "var(--navbar-height, 64px)",
+          height: "calc(100vh - var(--navbar-height, 64px))",
         }}
       >
-        <div className="max-w-[1400px] mx-auto p-4 lg:p-6 pb-16">
+        <div className="max-w-[1440px] mx-auto p-4 lg:p-6 pb-16">
           {children}
         </div>
       </main>
