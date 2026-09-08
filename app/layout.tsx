@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AlumniVerse | AI-Based Alumni Career & Networking Platform",
+  title: "AlumNet | AI-Powered Alumni Career & Networking Platform",
   description:
-    "An agentic AI career network that understands your goals, finds the right people to help you reach them, and continuously guides your next career move.",
+    "AlumNet — an agentic AI career network that understands your goals, finds the right people to help you reach them, and continuously guides your next career move.",
 };
 
 export default function RootLayout({

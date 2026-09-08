@@ -1,4 +1,4 @@
-// Core TypeScript definitions for AlumniVerse platform
+// Core TypeScript definitions for AlumNet platform
 export * from "./database";
 
 export type InstitutionType = "college" | "university" | "institute" | "school" | "bootcamp" | "other";

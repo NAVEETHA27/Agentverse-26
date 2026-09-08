@@ -1,5 +1,5 @@
 /**
- * Structured schema definitions for AI processing in AlumniVerse
+ * Structured schema definitions for AI processing in AlumNet
  */
 
 export interface CareerIntent {
