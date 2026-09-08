@@ -104,7 +104,7 @@ export function Navbar() {
       >
         <div className="flex items-center justify-between px-4 lg:px-5 h-full w-full">
           {/* ── LEFT: Brand ── */}
-          <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
+          <Link href="/profile" className="flex items-center gap-2.5 group shrink-0">
             <div className="group-hover:scale-105 transition-transform">
               <AlumNetLogo size={36} />
             </div>

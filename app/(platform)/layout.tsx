@@ -6,22 +6,20 @@ import { usePathname } from "next/navigation";
 import {
   Home, Target, Users, MessageSquare, Briefcase, Calendar,
   UserCheck, Bell, Settings, GraduationCap, Sparkles, ArrowRight,
-  LogOut, Compass, Trophy
+  LogOut, Compass, Trophy, BookOpen, BrainCircuit
 } from "lucide-react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
-  { name: "Home", href: "/dashboard", icon: Home },
-  { name: "Career", href: "/career", icon: Target },
-  { name: "Network", href: "/network", icon: Users },
-  { name: "Mentors", href: "/network", icon: Sparkles },
-  { name: "Mentorship", href: "/network", icon: Trophy },
-  { name: "Groups", href: "/feed", icon: Users },
-  { name: "Chat", href: "/chat", icon: MessageSquare, badge: 3 },
-  { name: "Opportunities", href: "/opportunities", icon: Briefcase },
-  { name: "Feed", href: "/feed", icon: Calendar },
-  { name: "Profile", href: "/profile", icon: UserCheck },
+  { name: "My Profile", href: "/profile", icon: UserCheck },
+  { name: "Career Roadmap", href: "/career", icon: Target },
+  { name: "Alumni Roadmap", href: "/network", icon: BookOpen },
+  { name: "Mentorship", href: "/network", icon: Sparkles },
+  { name: "Jobs & Referrals", href: "/opportunities", icon: Briefcase },
+  { name: "AI Assistant", href: "/career", icon: BrainCircuit },
+  { name: "Messages", href: "/chat", icon: MessageSquare, badge: 3 },
+  { name: "Events", href: "/feed", icon: Calendar },
   { name: "Notifications", href: "/notifications", icon: Bell, badge: 3 },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
@@ -39,14 +37,14 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
   }, []);
 
   const isActive = (href: string, name: string) => {
-    if (pathname === "/dashboard" || pathname === "/") {
-      return name === "Home";
+    if (pathname === "/profile" || pathname === "/dashboard") {
+      return name === "My Profile";
     }
     if (pathname === "/career") {
-      return name === "Career";
+      return name === "Career Roadmap";
     }
     if (pathname === "/network") {
-      return name === "Network";
+      return name === "Alumni Roadmap" || name === "Mentorship";
     }
     return pathname === href;
   };
