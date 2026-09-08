@@ -14,10 +14,8 @@ import { cn } from "@/lib/utils";
 const sidebarLinks = [
   { name: "My Profile", href: "/profile", icon: UserCheck },
   { name: "Career Roadmap", href: "/career", icon: Target },
-  { name: "Alumni Roadmap", href: "/network", icon: BookOpen },
-  { name: "Mentorship", href: "/network", icon: Sparkles },
+  { name: "Alumni Roadmap & Mentorship", href: "/network", icon: BookOpen },
   { name: "Jobs & Referrals", href: "/opportunities", icon: Briefcase },
-  { name: "AI Assistant", href: "/career", icon: BrainCircuit },
   { name: "Messages", href: "/chat", icon: MessageSquare, badge: 3 },
   { name: "Events", href: "/feed", icon: Calendar },
   { name: "Notifications", href: "/notifications", icon: Bell, badge: 3 },
@@ -36,15 +34,9 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
     };
   }, []);
 
-  const isActive = (href: string, name: string) => {
-    if (pathname === "/profile" || pathname === "/dashboard") {
-      return name === "My Profile";
-    }
-    if (pathname === "/career") {
-      return name === "Career Roadmap";
-    }
-    if (pathname === "/network") {
-      return name === "Alumni Roadmap" || name === "Mentorship";
+  const isActive = (href: string) => {
+    if (href === "/profile" && (pathname === "/profile" || pathname === "/dashboard" || pathname === "/")) {
+      return true;
     }
     return pathname === href;
   };
@@ -87,7 +79,7 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {sidebarLinks.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href, item.name);
+            const active = isActive(item.href);
             return (
               <Link
                 key={item.name}
