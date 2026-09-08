@@ -6,13 +6,12 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Target, Users, Briefcase, UserCheck, Sparkles,
   Settings, BrainCircuit, Calendar, MessageSquare, Bell,
-  BookOpen, LogOut, Star, Home
+  BookOpen, LogOut, Star
 } from "lucide-react";
 import { Navbar } from "@/components/navigation/Navbar";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "My Profile", href: "/profile", icon: UserCheck },
   { name: "Career Roadmap", href: "/career", icon: Target },
   { name: "Alumni Roadmap", href: "/network", icon: BookOpen },

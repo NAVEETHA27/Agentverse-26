@@ -15,7 +15,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = [
-    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "Home", href: "/profile", icon: Home },
     { name: "Network", href: "/network", icon: Users },
     { name: "Mentorship", href: "/network", icon: Sparkles },
     { name: "Jobs", href: "/opportunities", icon: Briefcase },
@@ -35,7 +35,7 @@ export function Navbar() {
       >
         <div className="flex items-center justify-between px-4 h-full max-w-[1440px] mx-auto gap-4">
           {/* Brand */}
-          <Link href="/dashboard" className="flex items-center gap-2.5 group shrink-0">
+          <Link href="/profile" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7A1443] to-[#C0336B] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
