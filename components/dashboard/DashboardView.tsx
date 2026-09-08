@@ -85,7 +85,7 @@ export function DashboardView({ user, goal, analysis, gaps, matches, agentSessio
 
   const skillGapLabels =
     gaps && gaps.length > 0
-      ? gaps.slice(0, 4).map((g) => g.skill?.name ?? g.skill_name ?? "Skill")
+      ? gaps.slice(0, 4).map((g) => g.skill?.name ?? "Skill")
       : ["Docker & Kubernetes", "Terraform", "AWS & Cloud", "CI/CD"];
 
   return (

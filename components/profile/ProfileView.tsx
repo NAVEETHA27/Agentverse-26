@@ -170,7 +170,7 @@ export function ProfileView({
             <div className="flex-1 min-w-0 space-y-1.5">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl font-black text-white tracking-tight">{user.full_name}</h1>
-                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" title="Verified profile" />
+                <span title="Verified profile"><ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" /></span>
               </div>
               <p className="text-sm font-semibold text-rose-200">
                 {user.headline ?? "B.Tech CSE (AI&ML) @ SRM IST | Aspiring Cloud Engineer"}
