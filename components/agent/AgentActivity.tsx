@@ -89,21 +89,21 @@ export function AgentActivity({
   };
 
   return (
-    <div className={`glass-panel rounded-2xl border border-slate-800 p-5 space-y-4 ${className}`}>
+    <div className={`rounded-2xl border border-[#F0E3E7] bg-white p-5 space-y-4 shadow-[0_2px_12px_rgba(74,12,43,0.03)] ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F0E3E7] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300">
+          <div className="p-2 rounded-xl bg-[#FDF2F5] border border-[#F4CEDB] text-[#7A1443]">
             <Cpu className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <h3 className="text-sm font-bold text-[#1E1218] flex items-center gap-2">
               {title}
-              <span className="text-[10px] text-indigo-400 font-mono">
+              <span className="text-[10px] text-[#7A1443] font-mono">
                 ({formatAgentName(agentType)})
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-[#7D6F77]">
               Live audit trace of autonomous reasoning and controlled tool execution.
             </p>
           </div>
@@ -115,7 +115,7 @@ export function AgentActivity({
               size="sm"
               variant="outline"
               onClick={onInspectTrace}
-              className="text-xs border-indigo-500/30 text-indigo-300 hover:bg-indigo-950/30 py-1 px-2.5 h-auto"
+              className="text-xs border-[#E8D1D8] text-[#7A1443] hover:bg-[#FDF2F5] py-1 px-2.5 h-auto"
             >
               <Terminal className="w-3 h-3 mr-1" />
               Trace
@@ -126,18 +126,18 @@ export function AgentActivity({
 
       {/* Current In-flight Action */}
       {currentAction && status === "executing" && (
-        <div className="p-3 rounded-xl bg-indigo-950/50 border border-indigo-800/50 flex items-center gap-3 text-xs text-indigo-300 animate-pulse">
-          <Loader2 className="w-4 h-4 animate-spin text-indigo-400 shrink-0" />
+        <div className="p-3 rounded-xl bg-[#FDF2F5] border border-[#F4CEDB] flex items-center gap-3 text-xs text-[#7A1443] animate-pulse">
+          <Loader2 className="w-4 h-4 animate-spin text-[#7A1443] shrink-0" />
           <span className="font-medium">{currentAction}</span>
         </div>
       )}
 
       {/* Step Timeline */}
       {steps.length === 0 ? (
-        <div className="py-6 text-center text-xs text-slate-500 space-y-1">
-          <Sparkles className="w-6 h-6 mx-auto text-slate-600 opacity-60" />
+        <div className="py-6 text-center text-xs text-[#7D6F77] space-y-1">
+          <Sparkles className="w-6 h-6 mx-auto text-[#7D6F77] opacity-60" />
           <p>No recent agent actions recorded yet.</p>
-          <p className="text-[10px] text-slate-600">Run an agent workflow to observe real-time tool execution.</p>
+          <p className="text-[10px] text-[#7D6F77]">Run an agent workflow to observe real-time tool execution.</p>
         </div>
       ) : (
         <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
@@ -151,47 +151,47 @@ export function AgentActivity({
                 key={step.stepNumber}
                 className={`p-3 rounded-xl border transition text-xs flex items-start justify-between gap-3 ${
                   isWaiting
-                    ? "bg-amber-950/30 border-amber-500/50 text-amber-200"
+                    ? "bg-amber-50/80 border-amber-300 text-amber-900"
                     : isFailed
-                    ? "bg-rose-950/30 border-rose-500/50 text-rose-200"
-                    : "bg-slate-950/60 border-slate-800/80 text-slate-300 hover:bg-slate-900/60"
+                    ? "bg-rose-50/80 border-rose-300 text-rose-900"
+                    : "bg-[#FAF7F8] border-[#F0E3E7] text-[#1E1218] hover:bg-[#FDF2F5]"
                 }`}
               >
                 <div className="flex items-start gap-2.5 min-w-0">
                   <div className="mt-0.5 shrink-0">
                     {isWaiting ? (
-                      <ShieldCheck className="w-4 h-4 text-amber-400" />
+                      <ShieldCheck className="w-4 h-4 text-amber-600" />
                     ) : isFailed ? (
-                      <AlertCircle className="w-4 h-4 text-rose-400" />
+                      <AlertCircle className="w-4 h-4 text-rose-600" />
                     ) : (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     )}
                   </div>
                   <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[10px] font-bold text-slate-400">
+                      <span className="font-mono text-[10px] font-bold text-[#7D6F77]">
                         #{step.stepNumber}
                       </span>
-                      <span className="font-semibold text-white truncate">
+                      <span className="font-bold text-[#1E1218] truncate">
                         {step.toolName}
                       </span>
                       {isWaiting && (
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 border border-amber-300">
                           Human Review Needed
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate">
+                    <p className="text-[11px] text-[#7D6F77] truncate">
                       {step.description}
                     </p>
-                    <p className="text-[10px] text-slate-300 font-mono bg-slate-900/80 rounded px-2 py-0.5 mt-1 border border-slate-800/60 truncate">
+                    <p className="text-[10px] text-[#4A3E45] font-mono bg-white rounded px-2 py-0.5 mt-1 border border-[#F0E3E7] truncate">
                       {step.outputSummary}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
-                  <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 justify-end">
+                  <span className="text-[10px] text-[#7D6F77] font-mono flex items-center gap-1 justify-end">
                     <Clock className="w-2.5 h-2.5" />
                     {step.durationMs}ms
                   </span>

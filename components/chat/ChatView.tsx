@@ -2,505 +2,235 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { 
-  MessageSquare, 
-  Send, 
-  Sparkles, 
-  CheckCircle2,
-  ShieldCheck, 
-  Loader2,
-  X,
-  BookmarkPlus,
-  HelpCircle,
-  FileText,
-  Clock,
-  ArrowRight,
-  Check
+import {
+  MessageSquare, Send, Sparkles, CheckCircle2, Search,
+  Phone, Video, MoreHorizontal, Check, FileText, HelpCircle,
+  ArrowRight, Edit3
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import { sendMessage } from "@/lib/database/chat";
 import type { EnrichedConversation, MessageRow } from "@/lib/database/chat";
 import type { UserRow } from "@/lib/database/users";
-import type { PendingApprovalAction, AgentResponse } from "@/lib/agents/types";
 
 interface ChatViewProps {
   currentUser: UserRow;
   initialConversations: EnrichedConversation[];
 }
 
-export function ChatView({
-  currentUser,
-  initialConversations,
-}: ChatViewProps) {
-  const [conversations] = useState<EnrichedConversation[]>(initialConversations);
-  const [activeConvId, setActiveConvId] = useState<string>(
-    initialConversations[0]?.id || "conv1"
-  );
-  const [messages, setMessages] = useState<MessageRow[]>(
-    initialConversations[0]?.messages || []
-  );
-  const [inputMessage, setInputMessage] = useState("");
+const MOCK_CONVS = [
+  { id: "c1", name: "Rohan Mehta", role: "Thanks for the insights! I'll check out the resources.", time: "11:24 AM", badge: 2, online: true },
+  { id: "c2", name: "Neha Iyer", role: "That makes sense. I'll keep you updated.", time: "Yesterday", badge: 0, online: false },
+  { id: "c3", name: "Arjun Bose", role: "Great connecting with you! Let's stay in touch.", time: "Tue", badge: 0, online: false },
+  { id: "c4", name: "Priya Nair", role: "Can we schedule a quick call next week?", time: "Mon", badge: 1, online: true },
+  { id: "c5", name: "Karan Shah", role: "Here's the deck I mentioned.", time: "May 18", badge: 0, online: false },
+  { id: "c6", name: "Sneha Patil", role: "Thanks a lot!", time: "May 16", badge: 0, online: false },
+  { id: "c7", name: "Vikram Desai", role: "Let me know if you need anything else.", time: "May 14", badge: 0, online: false },
+];
+
+const MOCK_MESSAGES = [
+  { id: "m1", sender: "other", text: "Hi Ananya! Great to connect with you. I saw you're interested in Product Management.", time: "10:58 AM" },
+  { id: "m2", sender: "me", text: "Hi Rohan! Yes, I'm exploring PM roles and would love to learn from your journey.", time: "11:02 AM" },
+  { id: "m3", sender: "other", text: "Happy to help! Happy to share what worked for me and lessons learned along the way.", time: "11:05 AM" },
+  { id: "m4", sender: "me", text: "That would be amazing. Could you share how you made the transition from engineering to PM?", time: "11:07 AM" },
+  { id: "m5", sender: "other", text: "Sure! It was a mix of building the right skills, working on side projects, and networking. Happy to dive deeper—let me know what specific areas you'd like to focus on.", time: "11:10 AM" },
+  { id: "m6", sender: "me", text: "Thanks for the insights! I'll check out the resources you shared.", time: "11:24 AM" },
+];
+
+const AI_TOOLS = [
+  { icon: FileText, label: "Summarize Chat" },
+  { icon: Sparkles, label: "Extract Advice" },
+  { icon: CheckCircle2, label: "Extract Action Items" },
+  { icon: HelpCircle, label: "Suggested Questions" },
+  { icon: ArrowRight, label: "Suggested Follow-up" },
+];
+
+const REL_STEPS = [
+  { label: "Connected", date: "May 12, 2024", done: true },
+  { label: "First Conversation", date: "May 12, 2024", done: true },
+  { label: "Exchanged Messages", date: "6+ messages", done: true },
+  { label: "Meet / Call", date: "Not yet", done: false },
+];
+
+export function ChatView({ currentUser, initialConversations }: ChatViewProps) {
+  const [activeId, setActiveId] = useState("c1");
+  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const active = MOCK_CONVS.find((c) => c.id === activeId) || MOCK_CONVS[0];
 
-  // Relationship Agent state
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [pendingApproval, setPendingApproval] = useState<PendingApprovalAction | null>(null);
-  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  const [conversationSummary, setConversationSummary] = useState<string>(
-    "Discussion with mentor Rahul Sharma on transitioning from an ECE undergrad into cloud engineering. Prioritizing AWS compute and Docker container packaging before jumping into Kubernetes."
-  );
-  const [latestAdvice, setLatestAdvice] = useState<string>(
-    "Your ECE background with Linux & Python gives you a system-level advantage. Master AWS compute and Docker before jumping to complex Kubernetes orchestration."
-  );
-  const [latestActionItem, setLatestActionItem] = useState<string>(
-    "Complete Docker containerization project on AWS, then request a mock architecture design review with Rahul."
-  );
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([
-    "What AWS container service (ECS Fargate vs EKS) do you recommend for entry-level portfolios?",
-    "How did you demonstrate production readiness during your AWS interviews?",
-  ]);
-
-  const activeConv = conversations.find((c) => c.id === activeConvId) || conversations[0];
-  const partner = activeConv?.partner;
-
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputMessage.trim() || isSending) return;
-
-    const text = inputMessage.trim();
-    setInputMessage("");
+    if (!input.trim() || isSending) return;
+    const text = input.trim();
+    setInput("");
     setIsSending(true);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: activeConv.id,
-          senderId: currentUser.id,
-          messageText: text,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.message) {
-          setMessages((prev) => [...prev, data.message]);
-          return;
-        }
-      }
-
-      // Fallback to local function if API route unavailable
-      const newMsg = await sendMessage(activeConv.id, currentUser.id, text);
-      setMessages((prev) => [...prev, newMsg]);
-    } catch {
-      const newMsg = await sendMessage(activeConv.id, currentUser.id, text);
-      setMessages((prev) => [...prev, newMsg]);
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  // Run Relationship Agent to inspect conversation and propose roadmap updates
-  const handleAnalyzeDialogue = async () => {
-    setIsAnalyzing(true);
-    setFeedbackMessage(null);
-
-    try {
-      const res = await fetch("/api/ai/agents/relationship", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          conversationId: activeConvId,
-          userId: currentUser.id,
-        }),
-      });
-
-      const data: AgentResponse = await res.json();
-      if (data.success && data.data?.insights) {
-        if (data.data.insights.keyAdvice?.[0]) {
-          setLatestAdvice(data.data.insights.keyAdvice[0]);
-        }
-        if (data.data.insights.actionItems?.[0]) {
-          setLatestActionItem(data.data.insights.actionItems[0]);
-        }
-        if (data.data.insights.followUpQuestions && data.data.insights.followUpQuestions.length > 0) {
-          setFollowUpQuestions(data.data.insights.followUpQuestions);
-        }
-        setConversationSummary(
-          `Analysis of ${messages.length} messages with mentor ${partner?.full_name}. Identified actionable technical recommendations and milestone candidate.`
-        );
-      }
-
-      if (data.pendingApproval) {
-        setPendingApproval(data.pendingApproval);
-      }
-    } catch (err: any) {
-      console.error("Failed to run relationship agent:", err);
-      setFeedbackMessage("Failed to analyze dialogue. Check console logs.");
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  // Human approval handler for roadmap updates
-  const handleApprovalDecision = async (decision: "approved" | "rejected") => {
-    if (!pendingApproval) return;
-    setIsSubmittingApproval(true);
-
-    try {
-      const res = await fetch("/api/ai/agents/approval", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          actionId: pendingApproval.actionId,
-          decision,
-        }),
-      });
-
-      const result = await res.json();
-      if (result.success) {
-        if (decision === "approved") {
-          setFeedbackMessage(`Milestone added to Career Roadmap! Check the Career tab to view your updated roadmap.`);
-        } else {
-          setFeedbackMessage("Milestone proposal rejected. Roadmap unchanged.");
-        }
-        setPendingApproval(null);
-      } else {
-        setFeedbackMessage(`Error: ${result.message}`);
-      }
-    } catch (err: any) {
-      setFeedbackMessage(`Failed processing approval: ${err.message}`);
-    } finally {
-      setIsSubmittingApproval(false);
-    }
+    setMessages((p) => [...p, { id: `m${Date.now()}`, sender: "me", text, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }]);
+    setIsSending(false);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-emerald-400" />
-            Mentor Messages & Relationship Intelligence
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Direct dialogue with alumni mentors enriched with actionable advice extraction.
-          </p>
+    <div className="flex gap-0 h-[calc(100dvh-var(--navbar-height,56px)-3rem)] min-h-[500px] bg-white rounded-2xl border border-[#F0E3E7] overflow-hidden shadow-sm">
+      {/* ── Left: Conversations list ── */}
+      <div className="w-[260px] shrink-0 border-r border-[#F0E3E7] flex flex-col">
+        <div className="p-3 border-b border-[#F0E3E7] flex items-center justify-between">
+          <h2 className="text-sm font-bold text-[#1E1218]">Conversations</h2>
+          <button><Edit3 className="w-4 h-4 text-[#7A1443]" /></button>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={isAnalyzing}
-            onClick={handleAnalyzeDialogue}
-            className="border-indigo-500/40 text-indigo-300 hover:bg-indigo-950/40"
-          >
-            {isAnalyzing ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                Analyzing Dialogue...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                Analyze Dialogue with AI
-              </>
-            )}
-          </Button>
-          <Badge variant="emerald" size="md">Relationship Agent Active</Badge>
+        {/* Search */}
+        <div className="px-3 py-2 border-b border-[#F0E3E7]">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#B0A0B0]" />
+            <input placeholder="Search conversations" className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-[#FAF7F8] border border-[#F0E3E7] text-xs text-[#1E1218] focus:outline-none" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {MOCK_CONVS.map((conv) => (
+            <button
+              key={conv.id}
+              onClick={() => setActiveId(conv.id)}
+              className={`w-full px-3 py-3 flex items-start gap-2.5 border-b border-[#F5EEF1] hover:bg-[#FAF7F8] transition text-left ${activeId === conv.id ? "bg-[#FDF2F5]" : ""}`}
+            >
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#5A0C32] to-[#A72B5F] flex items-center justify-center text-white text-xs font-bold">
+                  {conv.name.charAt(0)}
+                </div>
+                {conv.online && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-[#1E1218] truncate">{conv.name}</p>
+                  <p className="text-[10px] text-[#7D6F77] shrink-0 ml-1">{conv.time}</p>
+                </div>
+                <p className="text-[11px] text-[#7D6F77] truncate">{conv.role}</p>
+              </div>
+              {conv.badge > 0 && (
+                <span className="w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center shrink-0">{conv.badge}</span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
-      {feedbackMessage && (
-        <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-800/60 flex items-center justify-between text-xs text-indigo-200 animate-in fade-in duration-150">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span>{feedbackMessage}</span>
-          </div>
-          <Link href="/career" className="underline font-semibold text-sky-300 hover:text-white">
-            View Career Roadmap &rarr;
-          </Link>
-        </div>
-      )}
-
-      {/* HUMAN APPROVAL CARD: ROADMAP UPDATE PROPOSAL */}
-      {pendingApproval && (
-        <Card className="border-2 border-indigo-500/80 bg-indigo-950/30 p-5 rounded-2xl shadow-xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
-          <div className="flex items-start justify-between">
+      {/* ── Center: Chat window ── */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Chat header */}
+        <div className="px-4 py-3 border-b border-[#F0E3E7] flex items-center justify-between bg-white">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#5A0C32] to-[#A72B5F] flex items-center justify-center text-white text-sm font-bold">
+                {active.name.charAt(0)}
+              </div>
+              {active.online && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white" />}
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <Badge variant="indigo" size="sm">
-                  <ShieldCheck className="w-3.5 h-3.5 mr-1 inline" />
-                  AI Suggests Adding This to Your Career Roadmap
-                </Badge>
-                <span className="text-[10px] font-mono text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800">
-                  Human Approval Mandatory
-                </span>
+              <p className="text-sm font-bold text-[#1E1218]">{active.name}</p>
+              <p className="text-[11px] text-[#7D6F77]">Senior Product Manager at Google · MTech '15 · Connected since May 12, 2024</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[#7D6F77]">
+            <button className="p-1.5 rounded-lg hover:bg-[#FAF7F8]"><Phone className="w-4 h-4" /></button>
+            <button className="p-1.5 rounded-lg hover:bg-[#FAF7F8]"><Video className="w-4 h-4" /></button>
+            <button className="p-1.5 rounded-lg hover:bg-[#FAF7F8]"><MoreHorizontal className="w-4 h-4" /></button>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#FAFAFA]">
+          <div className="text-center">
+            <span className="text-[10px] text-[#7D6F77] bg-[#F0E8EC] px-3 py-1 rounded-full">Today</span>
+          </div>
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex flex-col ${msg.sender === "me" ? "items-end" : "items-start"}`}>
+              {msg.sender === "other" && (
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#5A0C32] to-[#A72B5F] flex items-center justify-center text-white text-xs font-bold mb-1">
+                  {active.name.charAt(0)}
+                </div>
+              )}
+              <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
+                msg.sender === "me"
+                  ? "text-white rounded-br-sm"
+                  : "bg-white text-[#1E1218] border border-[#F0E3E7] rounded-bl-sm"
+              }`}
+                style={msg.sender === "me" ? {
+                  background: "linear-gradient(135deg, #5A0C32, #8A1848)",
+                } : {}}
+              >
+                {msg.text}
               </div>
-              <h3 className="text-base font-bold text-white mt-1">
-                {pendingApproval.title}
-              </h3>
-              <p className="text-xs text-slate-300">
-                {pendingApproval.description}
-              </p>
+              <div className="flex items-center gap-1 mt-0.5 text-[10px] text-[#7D6F77]">
+                <span>{msg.time}</span>
+                {msg.sender === "me" && <Check className="w-3 h-3 text-emerald-500" />}
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="p-3.5 rounded-xl bg-slate-950/90 border border-indigo-900/50 space-y-1.5 text-xs text-slate-300">
-            <div className="font-semibold text-indigo-300">Proposed Milestone Details:</div>
-            <ul className="list-disc list-inside space-y-0.5 pl-1">
-              {pendingApproval.preview?.changes?.map((c, i) => (
-                <li key={i}>{c}</li>
-              ))}
-            </ul>
-          </div>
+        {/* Input */}
+        <form onSubmit={handleSend} className="px-4 py-3 border-t border-[#F0E3E7] bg-white flex items-center gap-2">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 bg-[#FAF7F8] border border-[#F0E3E7] rounded-xl px-4 py-2.5 text-xs text-[#1E1218] focus:outline-none focus:border-[#7A1443]"
+          />
+          <Button type="submit" size="sm" variant="primary" disabled={!input.trim()}>
+            <Send className="w-3.5 h-3.5" />
+          </Button>
+        </form>
+      </div>
 
-          <div className="flex items-center justify-between gap-3 pt-1">
-            <p className="text-[11px] text-slate-400 italic">
-              * Your roadmap will only be updated if you click &quot;Approve & Add to Roadmap&quot;.
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={isSubmittingApproval}
-                onClick={() => handleApprovalDecision("rejected")}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800"
-              >
-                <X className="w-3.5 h-3.5 mr-1" />
-                Reject
-              </Button>
-              <Button
-                size="sm"
-                variant="primary"
-                disabled={isSubmittingApproval}
-                onClick={() => handleApprovalDecision("approved")}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-900/40"
-              >
-                {isSubmittingApproval ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
-                    Approve & Add to Roadmap
-                  </>
-                )}
-              </Button>
+      {/* ── Right: AI Assistant + Relationship Progress ── */}
+      <div className="w-[240px] shrink-0 border-l border-[#F0E3E7] flex flex-col overflow-y-auto bg-white">
+        {/* AI Conversation Assistant */}
+        <div className="p-3 border-b border-[#F0E3E7]">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#7A1443]" />
+              <p className="text-xs font-bold text-[#1E1218]">AI Conversation Assistant</p>
             </div>
+            <button className="text-[#7D6F77] text-xs">∧</button>
           </div>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[620px]">
-        {/* Left Column: Conversations List (4 cols) */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1">
-            Active Mentor Threads
+          <div className="space-y-1.5">
+            {AI_TOOLS.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <button key={tool.label} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FAF7F8] border border-[#F0E3E7] text-xs text-[#4A3E45] hover:bg-[#FDF2F5] hover:border-[#F4CEDB] transition text-left">
+                  <Icon className="w-3.5 h-3.5 text-[#7A1443] shrink-0" />
+                  {tool.label}
+                </button>
+              );
+            })}
           </div>
+        </div>
 
+        {/* Relationship Progress */}
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-bold text-[#1E1218]">Relationship Progress</p>
+            <button className="text-[#7D6F77] text-[11px]">ⓘ</button>
+          </div>
+          <p className="text-[10px] text-[#7D6F77] mb-2">Building a Strong Connection</p>
+          <div className="w-full bg-[#F5ECF0] rounded-full h-2 mb-3">
+            <div className="bg-[#7A1443] h-2 rounded-full" style={{ width: "72%" }} />
+          </div>
           <div className="space-y-2">
-            {conversations.map((conv) => {
-              const isActive = conv.id === activeConvId;
-              const lastMsg = conv.messages[conv.messages.length - 1];
-
-              return (
-                <div
-                  key={conv.id}
-                  onClick={() => {
-                    setActiveConvId(conv.id);
-                    setMessages(conv.messages);
-                  }}
-                  className={`p-4 rounded-xl cursor-pointer transition border ${
-                    isActive
-                      ? "bg-slate-900 border-indigo-500/50 shadow-lg shadow-indigo-950/40"
-                      : "bg-slate-950/60 border-slate-800/80 hover:bg-slate-900/60"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-sky-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                      {conv.partner?.full_name?.charAt(0) || "M"}
-                    </div>
-                    <div className="space-y-1 flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-white truncate">
-                          {conv.partner?.full_name || "Alumni Mentor"}
-                        </h4>
-                        <span className="text-[10px] text-slate-400">
-                          {new Date(conv.last_message_at || conv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <p className="text-xs text-indigo-300 truncate">
-                        {conv.partner?.headline || "Cloud Mentor"}
-                      </p>
-                      <p className="text-xs text-slate-400 truncate mt-0.5">
-                        {lastMsg ? lastMsg.message_text : "No messages yet"}
-                      </p>
-                    </div>
-                  </div>
+            {REL_STEPS.map((step) => (
+              <div key={step.label} className="flex items-center gap-2">
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${step.done ? "bg-[#7A1443]" : "bg-[#F0E3E7]"}`}>
+                  {step.done && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Middle Column: Chat Window (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col glass-panel rounded-2xl border border-slate-800 overflow-hidden h-[620px]">
-          {/* Chat Header */}
-          <div className="p-4 border-b border-slate-800 bg-slate-950/70 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-sky-600 flex items-center justify-center text-white font-bold text-sm">
-                {partner?.full_name?.charAt(0) || "M"}
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">
-                  {partner?.full_name || "Rahul Sharma"}
-                </h3>
-                <p className="text-[11px] text-emerald-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-                  Alumni Mentor • Online
-                </p>
-              </div>
-            </div>
-            <Badge variant="indigo" size="sm">94% Match</Badge>
-          </div>
-
-          {/* Messages Feed */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
-            {messages.map((msg) => {
-              const isMe = msg.sender_id === currentUser.id;
-
-              return (
-                <div
-                  key={msg.id}
-                  className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed ${
-                      isMe
-                        ? "bg-indigo-600 text-white rounded-br-xs"
-                        : "bg-slate-800/90 text-slate-200 border border-slate-700/60 rounded-bl-xs"
-                    }`}
-                  >
-                    {msg.message_text}
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-1 px-1">
-                    <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    {isMe && <Check className="w-3 h-3 text-emerald-400" />}
-                  </div>
+                <div className="flex-1 flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-[#1E1218]">{step.label}</span>
+                  <span className="text-[10px] text-[#7D6F77]">{step.date}</span>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
-
-          {/* Chat Input Bar */}
-          <form
-            onSubmit={handleSendMessage}
-            className="p-3 border-t border-slate-800 bg-slate-950/90 flex items-center gap-2"
-          >
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask Rahul about Docker, AWS, or project advice..."
-              className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
-            />
-            <Button
-              type="submit"
-              size="sm"
-              variant="primary"
-              disabled={!inputMessage.trim() || isSending}
-              className="shrink-0 bg-indigo-600 hover:bg-indigo-500"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </Button>
-          </form>
-        </div>
-
-        {/* Right Column: AI Relationship Intelligence Sidebar (3 cols) */}
-        <div className="lg:col-span-3 space-y-4">
-          <Card className="glass-panel border-indigo-500/30 bg-indigo-950/10 p-4 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                  Relationship AI
-                </h4>
-              </div>
-              <Badge variant="purple" size="sm">Grounded</Badge>
-            </div>
-
-            {/* 1. Conversation Summary */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                <FileText className="w-3 h-3 text-slate-400" />
-                Conversation Summary
-              </span>
-              <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-                {conversationSummary}
-              </p>
-            </div>
-
-            {/* 2. Key Advice */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-amber-400 uppercase tracking-wider block">
-                Key Advice
-              </span>
-              <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-2.5 rounded-lg border border-slate-800">
-                &quot;{latestAdvice}&quot;
-              </p>
-            </div>
-
-            {/* 3. Action Items */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                Action Item
-              </span>
-              <div className="bg-slate-950/70 p-2.5 rounded-lg border border-slate-800 space-y-1.5">
-                <p className="text-xs text-slate-300 leading-relaxed font-medium">
-                  {latestActionItem}
-                </p>
-                <Link href="/career" className="text-[11px] text-emerald-400 hover:underline flex items-center gap-1 font-semibold">
-                  Link to Career Roadmap &rarr;
-                </Link>
-              </div>
-            </div>
-
-            {/* 4. Follow-up Questions */}
-            <div className="space-y-1">
-              <span className="text-[10px] font-semibold text-sky-400 uppercase tracking-wider flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-sky-400" />
-                Follow-up Questions
-              </span>
-              <div className="space-y-1">
-                {followUpQuestions.map((q, i) => (
-                  <div key={i} className="text-[11px] text-slate-300 bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    &quot;{q}&quot;
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
-
-          <Card className="glass-panel border-slate-800 p-4 space-y-2">
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Mentor Context
-            </h4>
-            <div className="text-xs text-slate-300 space-y-1">
-              <div><strong>Company:</strong> Amazon Web Services</div>
-              <div><strong>Role:</strong> Senior Cloud Architect</div>
-              <div><strong>Alumni:</strong> ABC College of Eng. (ECE)</div>
-              <div><strong>Match Score:</strong> 94% Deterministic</div>
-            </div>
-          </Card>
+          {/* Quote */}
+          <div className="mt-3 p-2.5 rounded-xl bg-[#FDF2F5] border border-[#F4CEDB]">
+            <p className="text-[10px] text-[#7A1443] italic leading-relaxed">"Strong relationships open doors. Keep the conversation going!"</p>
+            <Sparkles className="w-3 h-3 text-[#7A1443] mt-1 ml-auto" />
+          </div>
         </div>
       </div>
     </div>

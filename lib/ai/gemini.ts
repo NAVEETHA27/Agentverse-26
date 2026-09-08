@@ -16,15 +16,30 @@ import type {
   RelationshipInsight,
 } from "./schemas";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = "gemini-1.5-flash";
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-export const isGeminiConfigured = Boolean(
-  GEMINI_API_KEY && 
-  GEMINI_API_KEY.trim().length > 0 &&
-  GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY"
-);
+/**
+ * Resolves the active Gemini API key from environment variables.
+ * Automatically ignores empty values, template placeholders, and revoked/compromised keys.
+ */
+export function getGeminiApiKey(): string | null {
+  const key = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "").trim();
+  if (
+    !key ||
+    key === "your_gemini_api_key_here" ||
+    key === "YOUR_GEMINI_API_KEY" ||
+    key.startsWith("your_") ||
+    key.startsWith("YOUR_") ||
+    key.startsWith("AQ.") || // Ignore compromised/invalid legacy token
+    key.length < 20
+  ) {
+    return null;
+  }
+  return key;
+}
+
+export const isGeminiConfigured = Boolean(getGeminiApiKey());
 
 /**
  * Executes a controlled structured Gemini call with timeout, error handling, and robust fallback.
@@ -34,7 +49,8 @@ async function callGeminiStructured<T>(
   systemInstruction: string,
   fallback: T
 ): Promise<T> {
-  if (!isGeminiConfigured) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
     return fallback;
   }
 
@@ -42,9 +58,12 @@ async function callGeminiStructured<T>(
   const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second safety timeout
 
   try {
-    const response = await fetch(`${API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey,
+      },
       signal: controller.signal,
       body: JSON.stringify({
         systemInstruction: {
@@ -66,7 +85,13 @@ async function callGeminiStructured<T>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.warn(`[Gemini API] Request failed with HTTP ${response.status}: ${response.statusText}`);
+      if (response.status === 401) {
+        console.warn("[Gemini API] Request failed with HTTP 401: Unauthorized. Please verify GEMINI_API_KEY in .env.local.");
+      } else if (response.status === 429) {
+        console.warn("[Gemini API] Rate limit reached (HTTP 429). Falling back to deterministic response.");
+      } else {
+        console.warn(`[Gemini API] Request failed with HTTP ${response.status}: ${response.statusText}`);
+      }
       return fallback;
     }
 
@@ -91,7 +116,7 @@ async function callGeminiStructured<T>(
     if (err?.name === "AbortError") {
       console.warn("[Gemini API] Call timed out after 8s, falling back to deterministic response.");
     } else {
-      console.warn("[Gemini API] Call encountered error, falling back to deterministic response:", err?.message || err);
+      console.warn("[Gemini API] Network/fetch error, falling back to deterministic response.");
     }
     return fallback;
   }

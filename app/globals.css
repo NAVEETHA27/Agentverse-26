@@ -3,20 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
-  --foreground: #f1f5f9;
-  --card: #0f172a;
-  --card-foreground: #f8fafc;
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --border: #1e293b;
-  --ring: #6366f1;
+  --navbar-height: 56px;
+  --sidebar-width: 220px;
+  --background: #FAF7F8;
+  --foreground: #1E1218;
+  --card: #FFFFFF;
+  --card-foreground: #1E1218;
+  --primary: #5A0C32;
+  --primary-foreground: #FFFFFF;
+  --secondary: #FDF2F5;
+  --secondary-foreground: #4A0C2B;
+  --muted: #F5ECF0;
+  --muted-foreground: #7D6F77;
+  --accent: #FDF2F5;
+  --accent-foreground: #4A0C2B;
+  --border: #F0E3E7;
+  --ring: #7A1443;
 }
 
 body {
@@ -26,28 +28,39 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism & Custom Accents */
+/* Platform Shell Viewport Constraints */
+.platform-shell {
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+/* Premium Rounded Cards & Panels */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid #F0E3E7;
+  box-shadow: 0 2px 12px rgba(74, 12, 43, 0.03);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #FFFFFF;
+  border: 1px solid #F2E5E9;
+  box-shadow: 0 1px 6px rgba(74, 12, 43, 0.02);
+}
+
+.hero-wine-gradient {
+  background: linear-gradient(135deg, #2B071B 0%, #4A0C2B 50%, #6E113E 100%);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #c7d2fe 0%, #818cf8 45%, #38bdf8 100%);
+  background: linear-gradient(135deg, #4A0C2B 0%, #7A1443 50%, #CD5083 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-subtext {
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  background: linear-gradient(135deg, #1E1218 0%, #4A3E45 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -1,441 +1,240 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Settings, 
-  User, 
-  Target, 
-  HeartHandshake, 
-  Sparkles, 
-  Lock, 
-  Save, 
-  Check, 
-  ShieldCheck, 
-  Sliders, 
-  Eye,
-  Bell
+import {
+  User, Eye, Users, GraduationCap, Bell, Sparkles, Lock, Save, Check
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 
+const SECTIONS = [
+  { id: "account", label: "Account", icon: User },
+  { id: "visibility", label: "Profile Visibility", icon: Eye },
+  { id: "networking", label: "Networking Preferences", icon: Users },
+  { id: "mentorship", label: "Mentorship Preferences", icon: GraduationCap },
+  { id: "notifications", label: "Notification Preferences", icon: Bell },
+  { id: "ai", label: "AI Preferences", icon: Sparkles },
+];
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex w-10 h-5 rounded-full transition-colors shrink-0 ${checked ? "bg-[#7A1443]" : "bg-[#E0D0D8]"}`}
+    >
+      <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? "translate-x-5" : "translate-x-0.5"}`} />
+    </button>
+  );
+}
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"account" | "career" | "mentorship" | "ai" | "privacy">("account");
-  const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Form states
-  const [accountState, setAccountState] = useState({
-    fullName: "Rohan Varma",
-    username: "rohan_v",
-    email: "rohan@example.com",
-    location: "Chennai, India",
-    headline: "ECE Senior Student @ ABC College | Aspiring Cloud & DevOps Engineer",
-    bio: "Passionate about distributed systems, Linux socket internals, and cloud infrastructure.",
+  const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({
+    fullName: "Priya Sharma",
+    email: "priya.sharma@alumnet.edu",
+    visibility: "Alumni Network",
+    showEmail: true,
+    allowConnections: true,
+    showInDirectory: true,
+    allowMessages: false,
+    openToMentor: true,
+    lookingForMentor: true,
+    emailNotifs: true,
+    pushNotifs: true,
+    aiFrequency: 60, // 0-100 slider
   });
 
-  const [careerState, setCareerState] = useState({
-    targetRole: "Cloud Engineer",
-    targetTimeline: "6 months (by graduation 2026)",
-    activeStatus: "Actively Preparing & Seeking Mentorship",
-  });
-
-  const [mentorshipState, setMentorshipState] = useState({
-    openToMentoring: false,
-    openToMentees: true,
-    maxMentees: 2,
-    preferredTopics: "Cloud Architecture, Linux Systems, Containerization, ECE to Software transition",
-  });
-
-  const [aiState, setAiState] = useState({
-    approvalMode: "strict", // strict = human approval required before sending
-    geminiExtraction: true,
-    agentTraceAudit: true,
-    autoDiscoveryFrequency: "daily",
-  });
-
-  const [privacyState, setPrivacyState] = useState({
-    visibility: "network_only",
-    showAcademicRecords: true,
-    allowAlumniDirectMessage: true,
-  });
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+  const handleSave = () => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Settings className="w-6 h-6 text-indigo-400" />
-            Platform & Agent Settings
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Manage your unified identity, career objectives, AI governance parameters, and privacy preferences.
-          </p>
+    <div className="max-w-4xl mx-auto space-y-4">
+      <h1 className="text-xl font-bold text-[#1E1218]">Settings</h1>
+
+      <div className="flex gap-4">
+        {/* Left nav */}
+        <div className="w-52 shrink-0 bg-white rounded-2xl border border-[#F0E3E7] shadow-sm py-2 h-fit sticky top-20">
+          {SECTIONS.map((s) => {
+            const Icon = s.icon;
+            return (
+              <a key={s.id} href={`#${s.id}`}
+                className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-[#4A3E45] hover:bg-[#FDF2F5] hover:text-[#7A1443] transition rounded-xl mx-1.5 group">
+                <Icon className="w-4 h-4 text-[#7D6F77] group-hover:text-[#7A1443]" />
+                {s.label}
+              </a>
+            );
+          })}
         </div>
 
-        {savedSuccess && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium animate-fade-in">
-            <Check className="w-4 h-4" />
-            <span>Preferences saved successfully!</span>
-          </div>
-        )}
-      </div>
-
-      {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800/80">
-        {[
-          { id: "account", label: "Account Profile", icon: User },
-          { id: "career", label: "Career Goal", icon: Target },
-          { id: "mentorship", label: "Mentorship", icon: HeartHandshake },
-          { id: "ai", label: "AI & Agent Guardrails", icon: Sparkles },
-          { id: "privacy", label: "Privacy & Visibility", icon: Lock },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
-                isActive
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Tab Panels */}
-      <form onSubmit={handleSave}>
-        <Card className="glass-panel border-slate-800 p-6">
-          {/* 1. Account Settings */}
-          {activeTab === "account" && (
-            <div className="space-y-4">
-              <div className="pb-3 border-b border-slate-800">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <User className="w-4 h-4 text-indigo-400" />
-                  Unified Account Identity
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Your identity seamlessly spans student enrollment and alumni alumni networks without artificial role locks.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Full Name</label>
-                  <input
-                    type="text"
-                    value={accountState.fullName}
-                    onChange={(e) => setAccountState({ ...accountState, fullName: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Username</label>
-                  <input
-                    type="text"
-                    value={accountState.username}
-                    onChange={(e) => setAccountState({ ...accountState, username: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Email Address</label>
-                  <input
-                    type="email"
-                    value={accountState.email}
-                    onChange={(e) => setAccountState({ ...accountState, email: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Location</label>
-                  <input
-                    type="text"
-                    value={accountState.location}
-                    onChange={(e) => setAccountState({ ...accountState, location: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
+        {/* Right: all settings in one scrollable panel */}
+        <div className="flex-1 bg-white rounded-2xl border border-[#F0E3E7] shadow-sm p-6 space-y-8">
+          {/* Account */}
+          <section id="account" className="space-y-4">
+            <h2 className="text-base font-bold text-[#1E1218] pb-2 border-b border-[#F0E3E7]">Account</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[#4A3E45]">Full Name</label>
+                <div className="flex items-center border border-[#F0E3E7] rounded-xl px-3 py-2 bg-[#FAF7F8] gap-2">
+                  <User className="w-3.5 h-3.5 text-[#7D6F77]" />
+                  <input value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    className="flex-1 text-xs bg-transparent text-[#1E1218] focus:outline-none" />
                 </div>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">Professional Headline</label>
-                <input
-                  type="text"
-                  value={accountState.headline}
-                  onChange={(e) => setAccountState({ ...accountState, headline: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                />
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[#4A3E45]">Email Address</label>
+                <div className="flex items-center border border-[#F0E3E7] rounded-xl px-3 py-2 bg-[#FAF7F8] gap-2">
+                  <span className="text-[#7D6F77] text-xs">✉</span>
+                  <input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="flex-1 text-xs bg-transparent text-[#1E1218] focus:outline-none" />
+                </div>
               </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-300">Bio</label>
-                <textarea
-                  rows={3}
-                  value={accountState.bio}
-                  onChange={(e) => setAccountState({ ...accountState, bio: e.target.value })}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none"
-                />
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-[#4A3E45]">Change Password</label>
+                <Button variant="outline" size="sm" className="w-full">
+                  <Lock className="w-3.5 h-3.5 mr-1.5" /> Change Password
+                </Button>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* 2. Career Goal */}
-          {activeTab === "career" && (
-            <div className="space-y-4">
-              <div className="pb-3 border-b border-slate-800">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Target className="w-4 h-4 text-emerald-400" />
-                  Target Career Objective
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Drives the Career Agent's roadmap generation and the Networking Agent's deterministic matching algorithm.
-                </p>
+          {/* Profile Visibility */}
+          <section id="visibility" className="space-y-3">
+            <div className="flex items-start gap-3 pb-3 border-b border-[#F0E3E7]">
+              <Eye className="w-4 h-4 text-[#7A1443] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#1E1218]">Profile Visibility</h3>
+                <p className="text-[11px] text-[#7D6F77]">Choose who can see your profile information.</p>
               </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Target Role Title</label>
-                  <input
-                    type="text"
-                    value={careerState.targetRole}
-                    onChange={(e) => setCareerState({ ...careerState, targetRole: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
-                  <span className="text-[11px] text-indigo-300">Matching weights will automatically optimize for this role</span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Target Horizon / Timeline</label>
-                  <input
-                    type="text"
-                    value={careerState.targetTimeline}
-                    onChange={(e) => setCareerState({ ...careerState, targetTimeline: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Readiness Status</label>
-                  <select
-                    value={careerState.activeStatus}
-                    onChange={(e) => setCareerState({ ...careerState, activeStatus: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="Actively Preparing & Seeking Mentorship">Actively Preparing & Seeking Mentorship</option>
-                    <option value="Exploring Career Paths">Exploring Career Paths</option>
-                    <option value="Applying to Roles / Interviewing">Applying to Roles / Interviewing</option>
-                  </select>
+              <div className="flex items-center gap-3">
+                <select value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value })}
+                  className="border border-[#F0E3E7] rounded-xl px-3 py-1.5 text-xs text-[#1E1218] bg-white focus:outline-none focus:border-[#7A1443]">
+                  <option>Alumni Network</option>
+                  <option>Public</option>
+                  <option>Private</option>
+                </select>
+                <div className="flex items-center gap-2 text-xs text-[#4A3E45]">
+                  <Toggle checked={form.showEmail} onChange={(v) => setForm({ ...form, showEmail: v })} />
+                  Show my email to trusted connections
                 </div>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* 3. Mentorship */}
-          {activeTab === "mentorship" && (
-            <div className="space-y-4">
-              <div className="pb-3 border-b border-slate-800">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <HeartHandshake className="w-4 h-4 text-amber-400" />
-                  Mentorship Availability & Preferences
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Configure whether you are seeking mentors or willing to guide junior students in specialized topics.
-                </p>
+          {/* Networking */}
+          <section id="networking" className="space-y-3">
+            <div className="flex items-start gap-3 pb-3 border-b border-[#F0E3E7]">
+              <Users className="w-4 h-4 text-[#7A1443] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#1E1218]">Networking Preferences</h3>
+                <p className="text-[11px] text-[#7D6F77]">Control how others can connect with you.</p>
               </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Seeking Alumni Mentorship</h4>
-                    <p className="text-[11px] text-slate-400">Allows the Networking Agent to pair you with qualified alumni advisors.</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={mentorshipState.openToMentees}
-                    onChange={(e) => setMentorshipState({ ...mentorshipState, openToMentees: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Open to Guide Junior Students (Peer Mentoring)</h4>
-                    <p className="text-[11px] text-slate-400">Offer guidance on freshman coursework or hardware/ECE labs.</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={mentorshipState.openToMentoring}
-                    onChange={(e) => setMentorshipState({ ...mentorshipState, openToMentoring: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Preferred Discussion Topics</label>
-                  <textarea
-                    rows={2}
-                    value={mentorshipState.preferredTopics}
-                    onChange={(e) => setMentorshipState({ ...mentorshipState, preferredTopics: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 resize-none"
-                  />
-                </div>
+              <div className="space-y-2 text-xs text-[#4A3E45]">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.allowConnections} onChange={(e) => setForm({ ...form, allowConnections: e.target.checked })} className="accent-[#7A1443] w-3.5 h-3.5" />
+                  Allow connection requests
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.showInDirectory} onChange={(e) => setForm({ ...form, showInDirectory: e.target.checked })} className="accent-[#7A1443] w-3.5 h-3.5" />
+                  Show me in alumni directory
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={form.allowMessages} onChange={(e) => setForm({ ...form, allowMessages: e.target.checked })} className="accent-[#7A1443] w-3.5 h-3.5" />
+                  Allow messages from non-connections
+                </label>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* 4. AI & Agent Guardrails */}
-          {activeTab === "ai" && (
-            <div className="space-y-4">
-              <div className="pb-3 border-b border-slate-800">
+          {/* Mentorship */}
+          <section id="mentorship" className="space-y-3">
+            <div className="flex items-start gap-3 pb-3 border-b border-[#F0E3E7]">
+              <GraduationCap className="w-4 h-4 text-[#7A1443] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#1E1218]">Mentorship Preferences</h3>
+                <p className="text-[11px] text-[#7D6F77]">Set your availability and mentoring interests.</p>
+              </div>
+              <div className="flex items-center gap-4 text-xs text-[#4A3E45]">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-purple-400" />
-                    AI Agent Guardrails & Governance
-                  </h3>
-                  <Badge variant="purple" size="sm">Safety Guarantee</Badge>
+                  <Toggle checked={form.openToMentor} onChange={(v) => setForm({ ...form, openToMentor: v })} />
+                  I am open to mentor
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Ensures all autonomous actions adhere to strict human-in-the-loop oversight.
-                </p>
+                <div className="flex items-center gap-2">
+                  <Toggle checked={form.lookingForMentor} onChange={(v) => setForm({ ...form, lookingForMentor: v })} />
+                  I am looking for a mentor
+                </div>
+                <Button variant="outline" size="sm">
+                  <span className="text-[#7A1443]">✏</span> Edit Interests
+                </Button>
               </div>
+            </div>
+          </section>
 
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-indigo-950/20 border border-indigo-500/30 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
-                    <ShieldCheck className="w-4 h-4 text-indigo-400" />
-                    <span>Human Approval Enforcement</span>
+          {/* Notification Preferences */}
+          <section id="notifications" className="space-y-3">
+            <div className="flex items-start gap-3 pb-3 border-b border-[#F0E3E7]">
+              <Bell className="w-4 h-4 text-[#7A1443] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#1E1218]">Notification Preferences</h3>
+                <p className="text-[11px] text-[#7D6F77]">Choose how you want to stay updated.</p>
+              </div>
+              <div className="flex items-center gap-6 text-xs text-[#4A3E45]">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Toggle checked={form.emailNotifs} onChange={(v) => setForm({ ...form, emailNotifs: v })} />
+                    Email Notifications
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    The Networking Agent will <strong>NEVER</strong> automatically dispatch connection requests or messages without your explicit one-click confirmation.
-                  </p>
+                  <p className="text-[10px] text-[#7D6F77] ml-12">Receive updates via email</p>
                 </div>
-
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Execution Trace Audit Logging</h4>
-                    <p className="text-[11px] text-slate-400">Record all agent tool invocations and latency timings in the audit log.</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Toggle checked={form.pushNotifs} onChange={(v) => setForm({ ...form, pushNotifs: v })} />
+                    Push Notifications
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={aiState.agentTraceAudit}
-                    onChange={(e) => setAiState({ ...aiState, agentTraceAudit: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Natural Language Skill Extraction</h4>
-                    <p className="text-[11px] text-slate-400">Use Gemini to automatically identify technical competencies from feed posts and chat.</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={aiState.geminiExtraction}
-                    onChange={(e) => setAiState({ ...aiState, geminiExtraction: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Agent Discovery Frequency</label>
-                  <select
-                    value={aiState.autoDiscoveryFrequency}
-                    onChange={(e) => setAiState({ ...aiState, autoDiscoveryFrequency: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="instant">Instant on Goal Change</option>
-                    <option value="daily">Daily Digest</option>
-                    <option value="manual">Manual Execution Only</option>
-                  </select>
+                  <p className="text-[10px] text-[#7D6F77] ml-12">Receive updates on your device</p>
                 </div>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* 5. Privacy & Visibility */}
-          {activeTab === "privacy" && (
-            <div className="space-y-4">
-              <div className="pb-3 border-b border-slate-800">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-sky-400" />
-                  Privacy & Network Visibility
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Control who can discover your profile and view your academic achievements.
-                </p>
+          {/* AI Preferences */}
+          <section id="ai" className="space-y-3">
+            <div className="flex items-start gap-3">
+              <Sparkles className="w-4 h-4 text-[#7A1443] mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-[#1E1218]">AI Preferences</h3>
+                <p className="text-[11px] text-[#7D6F77]">Customize your AI recommendations.</p>
               </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-300">Profile Visibility Scope</label>
-                  <select
-                    value={privacyState.visibility}
-                    onChange={(e) => setPrivacyState({ ...privacyState, visibility: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
-                  >
-                    <option value="network_only">College Network & Verified Alumni (Recommended)</option>
-                    <option value="public">All Platform Members</option>
-                    <option value="private">Private / Mentors Only</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Show Academic & College Records</h4>
-                    <p className="text-[11px] text-slate-400">Display institution names and graduation years to alumni peers.</p>
+              <div className="flex items-center gap-4">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-[#4A3E45]">Recommendation Frequency</p>
+                  <div className="flex items-center gap-2 text-[10px] text-[#7D6F77]">
+                    <span>Less Often</span>
+                    <input type="range" min={0} max={100} value={form.aiFrequency}
+                      onChange={(e) => setForm({ ...form, aiFrequency: Number(e.target.value) })}
+                      className="w-32 accent-[#7A1443]" />
+                    <span className="text-[#7A1443] font-semibold">More Often</span>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={privacyState.showAcademicRecords}
-                    onChange={(e) => setPrivacyState({ ...privacyState, showAcademicRecords: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-                  <div>
-                    <h4 className="text-xs font-bold text-white">Allow Direct Outreach from Alumni</h4>
-                    <p className="text-[11px] text-slate-400">Receive mentor check-ins and referral invites directly in your inbox.</p>
+                  <div className="flex items-center gap-1 text-[10px]">
+                    <span className="text-[#7D6F77]">Balanced</span>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={privacyState.allowAlumniDirectMessage}
-                    onChange={(e) => setPrivacyState({ ...privacyState, allowAlumniDirectMessage: e.target.checked })}
-                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
-                  />
+                </div>
+                <div className="bg-[#FDF2F5] border border-[#F4CEDB] rounded-xl p-3 text-[11px] text-[#7A1443] max-w-[200px] leading-relaxed">
+                  ✦ We'll use AI to suggest relevant connections, jobs, events, and mentorship opportunities.
                 </div>
               </div>
             </div>
-          )}
+          </section>
 
-          {/* Footer Save Button */}
-          <div className="pt-6 mt-6 border-t border-slate-800/80 flex items-center justify-between">
-            <span className="text-[11px] text-slate-500">
-              Changes take effect immediately across all active agent loops.
-            </span>
-            <Button type="submit" variant="primary" size="md">
-              <Save className="w-4 h-4 mr-2" />
-              Save Preferences
+          {/* Save / Cancel */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#F0E3E7]">
+            <Button variant="outline" size="md">Cancel</Button>
+            <Button variant="primary" size="md" onClick={handleSave}>
+              {saved ? <><Check className="w-4 h-4 mr-1.5 text-emerald-300" />Saved!</> : <><Save className="w-4 h-4 mr-1.5" />Save Changes</>}
             </Button>
           </div>
-        </Card>
-      </form>
+        </div>
+      </div>
     </div>
   );
 }

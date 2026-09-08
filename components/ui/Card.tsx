@@ -10,8 +10,7 @@ export function Card({ className, glass = true, children, ...props }: CardProps)
   return (
     <div
       className={cn(
-        "rounded-xl p-5 transition-all duration-200",
-        glass ? "glass-panel" : "bg-slate-900 border border-slate-800",
+        "rounded-2xl p-5 sm:p-6 transition-all duration-200 bg-white border border-[#F0E3E7] shadow-[0_2px_12px_rgba(74,12,43,0.03)]",
         className
       )}
       {...props}
@@ -27,7 +26,7 @@ export function CardHeader({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex flex-col space-y-1.5 pb-4", className)} {...props}>
+    <div className={cn("flex flex-col space-y-1 pb-4", className)} {...props}>
       {children}
     </div>
   );
@@ -40,7 +39,7 @@ export function CardTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={cn("text-lg font-semibold leading-none tracking-tight text-white", className)}
+      className={cn("text-base sm:text-lg font-bold leading-tight tracking-tight text-[#1E1218]", className)}
       {...props}
     >
       {children}
@@ -54,7 +53,7 @@ export function CardDescription({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm text-slate-400 mt-1", className)} {...props}>
+    <p className={cn("text-xs sm:text-sm text-[#7D6F77]", className)} {...props}>
       {children}
     </p>
   );

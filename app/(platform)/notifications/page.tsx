@@ -2,255 +2,152 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { 
-  Bell, 
-  Sparkles, 
-  UserPlus, 
-  MessageSquare, 
-  Map, 
-  Check, 
-  CheckCheck, 
-  ArrowRight, 
-  Clock, 
-  Filter,
-  ShieldCheck,
-  Trash2
+import {
+  Bell, UserPlus, MessageSquare, BookOpen, Briefcase,
+  Map, Sparkles, ChevronDown, ChevronUp, CheckCheck
 } from "lucide-react";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
-interface NotificationItem {
+interface NotifGroup {
   id: string;
-  type: "connection" | "message" | "roadmap" | "agent";
-  title: string;
-  description: string;
-  timestamp: string;
-  read: boolean;
-  actionUrl: string;
-  actionLabel: string;
-  badge?: string;
-  badgeVariant?: "indigo" | "emerald" | "amber" | "purple" | "rose" | "default";
+  icon: React.ElementType;
+  label: string;
+  count: number;
+  color: string;
+  items: {
+    id: string;
+    avatar: string;
+    name: string;
+    sub: string;
+    message: string;
+    time: string;
+    actions?: { label: string; variant: "primary" | "outline" }[];
+    actionLabel?: string;
+  }[];
 }
 
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
+const GROUPS: NotifGroup[] = [
   {
-    id: "notif-1",
-    type: "connection",
-    title: "Connection Request Accepted",
-    description: "Rahul Sharma (Senior Cloud Architect @ AWS) accepted your connection request and agreed to mentor your Cloud Engineer transition.",
-    timestamp: "10m ago",
-    read: false,
-    actionUrl: "/chat",
-    actionLabel: "Open Conversation",
-    badge: "Connected",
-    badgeVariant: "emerald",
+    id: "conn_req", icon: UserPlus, label: "Connection Requests", count: 2, color: "text-emerald-600",
+    items: [
+      { id: "n1", avatar: "A", name: "Arjun Mehta", sub: "Product Manager at Google", message: "Hi Priya, I'd like to connect and explore opportunities to collaborate.", time: "10m ago", actions: [{ label: "Accept", variant: "primary" }, { label: "Dismiss", variant: "outline" }] },
+      { id: "n2", avatar: "N", name: "Neha Iyer", sub: "Data Scientist at Microsoft", message: "Hi Priya, I'd love to connect and learn from your journey.", time: "1h ago", actions: [{ label: "Accept", variant: "primary" }, { label: "Dismiss", variant: "outline" }] },
+    ],
   },
   {
-    id: "notif-2",
-    type: "agent",
-    title: "AI Networking Agent Match Discovery",
-    description: "The Networking Agent analyzed alumni nodes from ABC College and identified Rahul Sharma as a 94% deterministic match for Cloud Engineering.",
-    timestamp: "45m ago",
-    read: false,
-    actionUrl: "/network",
-    actionLabel: "View Match Breakdown",
-    badge: "Agent Alert",
-    badgeVariant: "purple",
+    id: "conn_acc", icon: UserPlus, label: "Connection Accepted", count: 1, color: "text-blue-600",
+    items: [
+      { id: "n3", avatar: "R", name: "Rohan Kapoor", sub: "Senior Software Engineer at Amazon", message: "Rohan Kapoor accepted your connection request.", time: "2h ago", actionLabel: "View" },
+    ],
   },
   {
-    id: "notif-3",
-    type: "message",
-    title: "New Message from Rahul Sharma",
-    description: "'Hey Rohan! Glad to connect. I saw your Linux socket project — that's solid groundwork for cloud infrastructure...'",
-    timestamp: "2h ago",
-    read: false,
-    actionUrl: "/chat",
-    actionLabel: "Reply to Rahul",
-    badge: "Unread Message",
-    badgeVariant: "indigo",
+    id: "messages", icon: MessageSquare, label: "New Messages", count: 2, color: "text-[#7A1443]",
+    items: [
+      { id: "n4", avatar: "A", name: "Ananya Singh", sub: "UX Designer at Adobe", message: "Hey Priya! I came across your profile and would love to chat about...", time: "3h ago", actionLabel: "View" },
+    ],
   },
   {
-    id: "notif-4",
-    type: "roadmap",
-    title: "Career Roadmap Action Item Added",
-    description: "Relationship AI analyzed your chat dialogue and proposed adding 'Set up AWS VPC with public/private subnets' to Phase 2 of your career plan.",
-    timestamp: "5h ago",
-    read: true,
-    actionUrl: "/career",
-    actionLabel: "View Career Plan",
-    badge: "Roadmap Sync",
-    badgeVariant: "amber",
+    id: "mentor", icon: BookOpen, label: "Mentor Updates", count: 1, color: "text-purple-600",
+    items: [
+      { id: "n5", avatar: "D", name: "Dr. Vivek Menon", sub: "Mentor", message: "Dr. Vivek Menon posted a new update: \"Key skills for career growth in 2024\"", time: "5h ago", actionLabel: "View" },
+    ],
   },
   {
-    id: "notif-5",
-    type: "connection",
-    title: "Connection Request Pending",
-    description: "Your introductory message to Ananya Patel (SWE II @ Microsoft) is awaiting review.",
-    timestamp: "1d ago",
-    read: true,
-    actionUrl: "/network",
-    actionLabel: "View Request Status",
-    badge: "Pending Approval",
-    badgeVariant: "default",
+    id: "jobs", icon: Briefcase, label: "Job Recommendations", count: 3, color: "text-amber-600",
+    items: [
+      { id: "n6", avatar: "ZS", name: "Product Manager", sub: "ZS Associates • Mumbai, India", message: "Based on your profile and preferences", time: "6h ago", actionLabel: "View Jobs" },
+    ],
+  },
+  {
+    id: "roadmap", icon: Map, label: "Roadmap Updates", count: 1, color: "text-emerald-600",
+    items: [
+      { id: "n7", avatar: "★", name: "Leadership Roadmap", sub: "Your Career Path", message: "New milestone unlocked: \"Leading Teams Effectively\"", time: "1d ago", actionLabel: "View" },
+    ],
+  },
+  {
+    id: "ai", icon: Sparkles, label: "AI Recommendations", count: 2, color: "text-rose-500",
+    items: [
+      { id: "n8", avatar: "AI", name: "Skill Recommendation", sub: "AI Career Coach", message: "AI suggests you to learn \"Prompt Engineering\" to boost your career.", time: "1d ago", actionLabel: "View" },
+    ],
   },
 ];
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
-  const [activeTab, setActiveTab] = useState<string>("all");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(
+    Object.fromEntries(GROUPS.map((g) => [g.id, true]))
+  );
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  };
-
-  const markSingleAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-  };
-
-  const filteredNotifications = notifications.filter((n) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "connections") return n.type === "connection";
-    if (activeTab === "messages") return n.type === "message";
-    if (activeTab === "agent") return n.type === "agent" || n.type === "roadmap";
-    return true;
-  });
-
-  const getIcon = (type: NotificationItem["type"]) => {
-    switch (type) {
-      case "connection":
-        return <UserPlus className="w-5 h-5 text-emerald-400" />;
-      case "message":
-        return <MessageSquare className="w-5 h-5 text-sky-400" />;
-      case "roadmap":
-        return <Map className="w-5 h-5 text-amber-400" />;
-      case "agent":
-        return <Sparkles className="w-5 h-5 text-purple-400" />;
-    }
-  };
+  const toggle = (id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] }));
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="max-w-3xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <Bell className="w-6 h-6 text-indigo-400" />
-            Notifications & System Alerts
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time notifications from alumni connections, mentor conversations, and autonomous AI agents.
-          </p>
+          <h1 className="text-xl font-bold text-[#1E1218]">Notifications</h1>
+          <p className="text-xs text-[#7D6F77]">Stay updated with your network and career opportunities</p>
         </div>
-        
-        <div className="flex items-center gap-3">
-          {unreadCount > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllAsRead}>
-              <CheckCheck className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
-              Mark all as read ({unreadCount})
-            </Button>
-          )}
-        </div>
+        <Button size="sm" variant="primary">
+          <CheckCheck className="w-3.5 h-3.5 mr-1.5" /> Mark all as read
+        </Button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        {[
-          { id: "all", label: "All Notifications", count: notifications.length },
-          { id: "connections", label: "Connections", count: notifications.filter((n) => n.type === "connection").length },
-          { id: "messages", label: "Messages", count: notifications.filter((n) => n.type === "message").length },
-          { id: "agent", label: "Agent & Roadmap", count: notifications.filter((n) => n.type === "agent" || n.type === "roadmap").length },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 ${
-              activeTab === tab.id
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800"
-            }`}
-          >
-            <span>{tab.label}</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === tab.id ? "bg-indigo-800 text-white" : "bg-slate-800 text-slate-400"}`}>
-              {tab.count}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Notifications List */}
+      {/* Groups */}
       <div className="space-y-3">
-        {filteredNotifications.length === 0 ? (
-          <Card className="glass-panel text-center py-12">
-            <Bell className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-slate-300">No notifications in this filter</p>
-            <p className="text-xs text-slate-500 mt-1">You're all caught up!</p>
-          </Card>
-        ) : (
-          filteredNotifications.map((n) => (
-            <Card
-              key={n.id}
-              className={`glass-panel border-slate-800 transition ${
-                !n.read ? "border-l-4 border-l-indigo-500 bg-indigo-950/10" : "opacity-90"
-              }`}
-            >
-              <div className="p-4 sm:p-5 flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shrink-0">
-                  {getIcon(n.type)}
-                </div>
-
-                <div className="flex-1 space-y-1.5 min-w-0">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <h3 className={`text-sm font-bold ${!n.read ? "text-white" : "text-slate-200"}`}>
-                        {n.title}
-                      </h3>
-                      {n.badge && (
-                        <Badge variant={n.badgeVariant || "default"} size="sm">
-                          {n.badge}
-                        </Badge>
-                      )}
-                      {!n.read && (
-                        <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                      )}
-                    </div>
-                    <span className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {n.timestamp}
+        {GROUPS.map((group) => {
+          const Icon = group.icon;
+          const isOpen = expanded[group.id];
+          return (
+            <div key={group.id} className="bg-white rounded-2xl border border-[#F0E3E7] shadow-sm overflow-hidden">
+              {/* Group header */}
+              <button
+                onClick={() => toggle(group.id)}
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#FAF7F8] transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl bg-[#FAF7F8] border border-[#F0E3E7] flex items-center justify-center ${group.color}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-sm font-semibold text-[#1E1218]">{group.label}</span>
+                  {group.count > 0 && (
+                    <span className="text-[10px] font-bold bg-[#FDF2F5] text-[#7A1443] border border-[#F4CEDB] rounded-full px-2 py-0.5">
+                      {group.count}
                     </span>
+                  )}
+                </div>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-[#7D6F77]" /> : <ChevronDown className="w-4 h-4 text-[#7D6F77]" />}
+              </button>
+
+              {/* Items */}
+              {isOpen && group.items.map((item, i) => (
+                <div key={item.id} className={`flex items-center gap-3 px-4 py-3 ${i < group.items.length - 1 ? "border-b border-[#F5EEF1]" : ""} hover:bg-[#FAF7F8] transition`}>
+                  {/* Red dot for unread */}
+                  <div className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#5A0C32] to-[#A72B5F] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {item.avatar}
                   </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    {n.description}
-                  </p>
-
-                  <div className="pt-2 flex items-center justify-between">
-                    <Link href={n.actionUrl} onClick={() => markSingleAsRead(n.id)}>
-                      <Button size="sm" variant="outline" className="text-xs">
-                        <span>{n.actionLabel}</span>
-                        <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
-                      </Button>
-                    </Link>
-
-                    {!n.read && (
-                      <button
-                        onClick={() => markSingleAsRead(n.id)}
-                        className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 transition"
-                      >
-                        <Check className="w-3 h-3 text-emerald-400" />
-                        <span>Mark read</span>
-                      </button>
-                    )}
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#1E1218]">{item.name}</p>
+                    <p className="text-[11px] text-[#7D6F77]">{item.sub}</p>
+                    <p className="text-[11px] text-[#4A3E45] mt-0.5 truncate">{item.message}</p>
+                  </div>
+                  <p className="text-[10px] text-[#7D6F77] shrink-0 w-12 text-right">{item.time}</p>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {item.actions ? item.actions.map((a) => (
+                      <Button key={a.label} size="sm" variant={a.variant}>{a.label}</Button>
+                    )) : item.actionLabel ? (
+                      <Button size="sm" variant="outline">{item.actionLabel}</Button>
+                    ) : null}
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))
-        )}
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
