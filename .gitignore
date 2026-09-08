@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Production & Build outputs
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+!*.env.example
+!.env.example
+
+# Debug and Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Scratch / Temporary local test runner scripts
+scratch/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+thumbs.db
